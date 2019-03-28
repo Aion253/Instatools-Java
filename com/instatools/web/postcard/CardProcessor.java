@@ -21,6 +21,7 @@ public class CardProcessor extends ElementProcessor {
 	}
 
 	private String findTokenQuery = "SELECT * FROM `instatools`.`postcards` WHERE `cardID` = ?;";
+	private String trackingInsertQuery = "INSERT INTO `instatools`.`tracking` (`cardID`,`referer`,`user_agent`) VALUES (?,?,?);";
 	
 	@Override
 	public void generateContent(JDCHeadElement element, HttpExchange he, RequestVariables vars,
@@ -30,6 +31,8 @@ public class CardProcessor extends ElementProcessor {
 		if(p.length() == 32) {
 			List<Map<String,Object>> r = DatabaseUtils.prepareAndExecute(findTokenQuery, true, p).get(0).getResults();
 			if(!r.isEmpty()) {
+				String referer = he.getRequestHeaders().containsKey("referer") ? he.getRequestHeaders().getFirst("referer") : null;
+				String userAgent = he.getRequestHeaders().containsKey("user-agent") ? he.getRequestHeaders().getFirst("user-agent") : null;
 				String redirectUrl = (String) r.get(0).get("cardRedirect");
 				String imageUrl = (String) r.get(0).get("cardImage");
 				String caption = (String) r.get(0).get("cardCaption");
@@ -39,8 +42,10 @@ public class CardProcessor extends ElementProcessor {
 						.addChild(new JDCElement("meta").setAttribute("name", "twitter:title").setAttribute("content", caption))
 						.addChild(new JDCElement("meta").setAttribute("name", "twitter:description").setAttribute("content", "View the full post on Intstagram."))
 						.addChild(new JDCElement("meta").setAttribute("name", "twitter:image").setAttribute("content", imageUrl));
+					DatabaseUtils.prepareAndExecute(trackingInsertQuery, false, p, referer, userAgent);
 				} else {
 					vars.setRedirect(redirectUrl);
+					DatabaseUtils.prepareAndExecute(trackingInsertQuery, false, p, referer, userAgent);
 					return;
 				}
 			} else {

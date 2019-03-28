@@ -45,7 +45,9 @@ public class PostCardProcessor extends ElementProcessor {
 				URL url = new URL(instagramLink);
 				HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 				connection.setInstanceFollowRedirects(true);
-				connection.setRequestProperty("User-Agent", "InstaTools/1.0");
+				connection.setRequestProperty("User-Agent", "Aion InstaTools/1.1");
+				connection.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
+				connection.addRequestProperty("Referer", "https://instatools.aionstudios.net/");
 				connection.setRequestMethod("GET");
 				connection.connect();
 				code = connection.getResponseCode();
@@ -139,7 +141,7 @@ public class PostCardProcessor extends ElementProcessor {
 	    	URL url = new URL(uri);
 	        HttpURLConnection con = (HttpURLConnection) url.openConnection();
 	        con.setInstanceFollowRedirects(false);
-	        con.setRequestProperty("User-Agent", "InstaTools/1.0");
+	        con.setRequestProperty("User-Agent", "Aion InstaTools/1.1");
 	        con.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
 	        con.addRequestProperty("Referer", "https://instatools.aionstudios.net/");
 	        con.connect();
