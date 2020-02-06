@@ -1,8 +1,11 @@
 package com.instatools.web.postcard;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -63,7 +66,7 @@ public class PostCardProcessor extends ElementProcessor {
 					if(instagramLink.matches(instagramRegex) && instagramLink.length() > 30) {
 							if(instagramLink.length() < 44) {
 								if(ic.length() < 256) {
-									String postTag = insertCard(instagramLink, instagramImage, ic);
+									String postTag = insertCard(instagramLink, instagramImage, ic, vars);
 									String inLink = he.getRequestHeaders().getFirst("Host")+"/postcard.jdc?p="+postTag;
 									if(!inLink.startsWith("http")) {
 										inLink = "https://"+inLink;
@@ -106,10 +109,13 @@ public class PostCardProcessor extends ElementProcessor {
 		
 	}
 	
+	private String findSessionQuery = "SELECT `user_sessions`.`uid` FROM `aion_front`.`user_sessions` INNER JOIN `aion_front`.`users` ON `user_sessions`.`uid` = `users`.`uid` WHERE `sessionID` = ?;";
+	
 	private String findTokenQuery = "SELECT * FROM `instatools`.`postcards` WHERE `cardID` = ?;";
 	private String insertTokenQuery = "INSERT INTO `instatools`.`postcards` (`cardID`, `cardImage`, `cardCaption`, `cardRedirect`) VALUES (?, ?, ?, ?);";
+	private String insertTokenUserQuery = "INSERT INTO `instatools`.`postcards` (`cardID`, `cardImage`, `cardCaption`, `cardRedirect`, `cardOwner`) VALUES (?, ?, ?, ?, ?);";
 	
-	private String insertCard(String instagramLink, String instagramImage, String cardCaption) {
+	private String insertCard(String instagramLink, String instagramImage, String cardCaption, RequestVariables vars) {
 		String tryToken = "";
 		boolean tokenAvailable = false;
 		while(!tokenAvailable) {
@@ -118,7 +124,12 @@ public class PostCardProcessor extends ElementProcessor {
 				tokenAvailable = true;
 			}
 		}
-		DatabaseUtils.prepareAndExecute(insertTokenQuery, true, tryToken, instagramImage, cardCaption, instagramLink);
+		List<Map<String, Object>> qr = DatabaseUtils.prepareAndExecute(findSessionQuery, true, vars.getCookieManager().getRequestCookies().get("sessionID")).get(0).getResults();
+		if(qr.isEmpty()){
+			DatabaseUtils.prepareAndExecute(insertTokenQuery, true, tryToken, instagramImage, cardCaption, instagramLink);
+		} else {
+			DatabaseUtils.prepareAndExecute(insertTokenUserQuery, true, tryToken, instagramImage, cardCaption, instagramLink, qr.get(0).get("uid"));
+		}
 		return tryToken;
 	}
 	

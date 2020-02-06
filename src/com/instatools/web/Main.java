@@ -1,14 +1,17 @@
 package com.instatools.web;
 
+import com.instatools.web.account.AccountSet;
+import com.instatools.web.account.FrontPageLoginProcessor;
+import com.instatools.web.account.RequireLoginAccountProcessor;
 import com.instatools.web.errors.ErrorsSet;
 import com.instatools.web.errors.NotFoundProcessor;
 import com.instatools.web.postcard.CardProcessor;
 import com.instatools.web.postcard.PostCardProcessor;
 import com.instatools.web.postcard.PostCardSet;
+import com.instatools.web.session.SessionSet;
+import com.instatools.web.session.ValidateSessionProcessor;
 
 import net.aionstudios.jdc.JDC;
-import net.aionstudios.jdc.cron.CronManager;
-import net.aionstudios.jdc.database.DatabaseConnector;
 import net.aionstudios.jdc.util.DatabaseUtils;
 
 public class Main extends JDC {
@@ -19,6 +22,7 @@ public class Main extends JDC {
 			"  `cardImage` varchar(255) NOT NULL,\r\n" + 
 			"  `cardCaption` varchar(64) NOT NULL,\r\n" + 
 			"  `cardRedirect` varchar(255) NOT NULL,\r\n" + 
+			"  `cardOwner` varchar(64) DEFAULT NULL,\r\n" +
 			"  PRIMARY KEY (`cardID`),\r\n" + 
 			"  UNIQUE KEY `cardID_UNIQUE` (`cardID`)\r\n" + 
 			") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
@@ -39,10 +43,19 @@ public class Main extends JDC {
 		ErrorsSet es = new ErrorsSet(getProcessorManager());
 		NotFoundProcessor esnfp = new NotFoundProcessor(es);
 		
-		/*Post Car*/
+		/*Post Card*/
 		PostCardSet pcs = new PostCardSet(getProcessorManager());
 		PostCardProcessor pcspcp = new PostCardProcessor(pcs);
 		CardProcessor pcscp = new CardProcessor(pcs);
+		
+		/*Account*/
+		AccountSet acs = new AccountSet(getProcessorManager());
+		RequireLoginAccountProcessor rlacs = new RequireLoginAccountProcessor(acs);
+		FrontPageLoginProcessor fpacs = new FrontPageLoginProcessor(acs);
+		
+		/*Session*/
+		SessionSet ss = new SessionSet(getProcessorManager());
+		ValidateSessionProcessor vss = new ValidateSessionProcessor(ss);
 	}
 
 }
