@@ -37,6 +37,8 @@ public class RequireLoginAccountProcessor extends Processor {
 			} catch (UnsupportedEncodingException e) {
 				//utf8 always supported
 			}
+		} else {
+			pageVariables.put("uid", qr.get(0).get("uid"));
 		}
 	}
 

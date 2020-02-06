@@ -6,6 +6,7 @@ import com.instatools.web.account.RequireLoginAccountProcessor;
 import com.instatools.web.errors.ErrorsSet;
 import com.instatools.web.errors.NotFoundProcessor;
 import com.instatools.web.postcard.CardProcessor;
+import com.instatools.web.postcard.HistoryCardsProcessor;
 import com.instatools.web.postcard.PostCardProcessor;
 import com.instatools.web.postcard.PostCardSet;
 import com.instatools.web.session.SessionSet;
@@ -27,11 +28,14 @@ public class Main extends JDC {
 			"  UNIQUE KEY `cardID_UNIQUE` (`cardID`)\r\n" + 
 			") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
 	String createTrackingTable = "CREATE TABLE `instatools`.`tracking` (\r\n" + 
+			"  `requestPK` int(11) NOT NULL AUTO_INCREMENT,\r\n" +
 			"  `cardID` varchar(32) NOT NULL,\r\n" + 
 			"  `referer` varchar(255) NULL,\r\n" + 
 			"  `user_agent` text NULL,\r\n" + 
-			"  `click_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP\r\n" + 
-			") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
+			"  `click_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n" + 
+			"  PRIMARY KEY (`requestPK`),\r\n" + 
+			"  UNIQUE KEY `requestPK_UNIQUE` (`requestPK`)\r\n" +
+			") ENGINE=InnoDB AUTO_INCREMENT=3170 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
 	
 	@Override
 	public void initialize() {
@@ -47,6 +51,7 @@ public class Main extends JDC {
 		PostCardSet pcs = new PostCardSet(getProcessorManager());
 		PostCardProcessor pcspcp = new PostCardProcessor(pcs);
 		CardProcessor pcscp = new CardProcessor(pcs);
+		HistoryCardsProcessor hcpcs = new HistoryCardsProcessor(pcs);
 		
 		/*Account*/
 		AccountSet acs = new AccountSet(getProcessorManager());

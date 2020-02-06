@@ -37,6 +37,7 @@ public class FrontPageLoginProcessor extends ElementProcessor {
 			element.setText("<br><a href=\""+returnLogin+"\" alt='Sign In'>Sign in</a> now to see how your card is doing later.");
 		} else {
 			//No option to sign out because why?
+			element.setText("<br><a href=\"https://instatools.aionstudios.net/history.jdc\" alt='View my cards'>View</a> your cards now.");
 		}
 		
 	}
